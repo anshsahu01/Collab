@@ -2,12 +2,20 @@ import mongoose from "mongoose";
 
 const listSchema = new mongoose.Schema(
   {
-    title: String,
+    title: {
+      type: String,
+      required: true,
+    },
     boardId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Board",
+      required: true,
+      index: true,
     },
-    position: Number,
+    position: {
+      type: Number,
+      required: true,
+    },
   },
   { timestamps: true }
 );
