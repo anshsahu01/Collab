@@ -71,3 +71,34 @@ export const moveTask = async (req, res) => {
   }
 };
 
+
+export const assignTask = async (req,res) => {
+
+  try {
+
+    const { taskId, userId} = req.body;
+
+    const task = await Task.findByIdAndUpdate(
+      taskId,
+      { assignedTo: userId },
+      {new : true}
+    ).populate(
+      "assignedTo",
+      "name email"
+    )
+
+    io.to(
+      task.boardId.toString()
+    ).emit(
+      "taskAssigned",task
+    );
+
+
+    res.json(task);
+    
+  } catch (error) {
+    res.status(500).json({message: error.message})
+    
+  }
+}
+
