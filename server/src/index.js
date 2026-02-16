@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import jwt from "jsonwebtoken";
 import { createServer } from "http"; // Move imports to top
 import { Server } from "socket.io";
 import { connectDB } from "./config/db.js";
@@ -49,9 +50,23 @@ app.get("/", (req, res) => {
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
+  const token = socket.handshake.auth?.token;
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      socket.join(`user:${decoded.userId}`);
+    } catch {
+      // ignore invalid socket auth token
+    }
+  }
+
   socket.on("joinBoard", (boardId) => {
     socket.join(boardId);
     console.log(`User ${socket.id} joined board ${boardId}`);
+  });
+
+  socket.on("leaveBoard", (boardId) => {
+    socket.leave(boardId);
   });
 
   socket.on("disconnect", () => {

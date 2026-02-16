@@ -6,7 +6,7 @@ import Signup from './pages/Signup.jsx';
 import Login from "./pages/Login.jsx";
 import Boards from "./pages/Boards.jsx";
 import Board from "./pages/Board.jsx";
-
+import MyTasks from './pages/Mytasks.jsx';
 function App() {
   
 
@@ -17,6 +17,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/boards" element={<Boards />} />
         <Route path="/boards/:id" element={<Board />} />
+        <Route path="/my-tasks" element={<MyTasks />} />
+
       </Routes>
     </BrowserRouter>
   )

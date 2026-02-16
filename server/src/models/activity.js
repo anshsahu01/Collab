@@ -4,6 +4,8 @@ const activitySchema = new mongoose.Schema(
   {
     type: String,
 
+    message: String,
+
     taskId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Task",
@@ -14,7 +16,10 @@ const activitySchema = new mongoose.Schema(
       ref: "User",
     },
 
-    message: String,
+    boardId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Board",
+    },
   },
   { timestamps: true }
 );
