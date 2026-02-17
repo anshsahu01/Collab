@@ -157,7 +157,7 @@ npm install
 Create `server/.env`:
 ```env
 PORT=5000
-MONGO_URI=mongodb://localhost:27017
+MONGO_URI= mongo-db-connection-string
 JWT_SECRET=replace_with_secure_secret
 CLIENT_URL=http://localhost:5173
 ```
