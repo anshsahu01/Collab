@@ -3,6 +3,7 @@ import {
   createTask,
   getTasks,
   deleteTask,
+  updateTask,
   moveTask,
   assignTask,
   searchTasks,
@@ -20,11 +21,10 @@ router.get("/my-tasks", protect, getMyTasks);
 
 router.get("/:listId", protect, getTasks);
 
-router.delete("/:id", protect, deleteTask);
-
 router.put("/move", protect, moveTask);
-
 router.put("/assign", protect, assignTask);
+router.put("/:id", protect, updateTask);
+router.delete("/:id", protect, deleteTask);
 
 
 export default router;

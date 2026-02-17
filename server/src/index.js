@@ -12,6 +12,7 @@ import authRoutes from "./routes/auth.routes.js";
 import boardRoutes from "./routes/board.routes.js";
 import listRoutes from "./routes/list.routes.js";
 import taskRoutes from "./routes/task.routes.js";
+import activityRoutes from "./routes/activity.routes.js";
 
 dotenv.config();
 
@@ -41,6 +42,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/boards", boardRoutes);
 app.use("/api/lists", listRoutes);
 app.use("/api/tasks", taskRoutes);
+app.use("/api/activities", activityRoutes);
 
 app.get("/", (req, res) => {
   res.send("API running");

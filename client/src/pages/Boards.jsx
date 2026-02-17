@@ -89,12 +89,12 @@ export default function Boards() {
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
               <span className="text-primary-foreground font-bold">
-                T
+                C
               </span>
             </div>
 
             <h1 className="text-2xl font-bold">
-              TaskFlow
+              Collab
             </h1>
           </div>
 

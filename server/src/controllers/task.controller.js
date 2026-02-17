@@ -2,6 +2,25 @@ import Task from "../models/Task.js";
 import Activity from "../models/Activity.js";
 import { getIO } from "../socket.js";
 
+const logActivity = async ({ type, message, taskId, userId, boardId }) => {
+  if (!boardId) return null;
+
+  const activity = await Activity.create({
+    type,
+    message,
+    taskId,
+    userId,
+    boardId,
+  });
+
+  const populatedActivity = await Activity.findById(activity._id)
+    .populate("userId", "name email")
+    .populate("taskId", "title");
+
+  getIO().to(boardId.toString()).emit("activityCreated", populatedActivity);
+  return populatedActivity;
+};
+
 export const createTask = async (req, res) => {
   try {
     const { title, description, boardId, listId } = req.body;
@@ -17,13 +36,13 @@ export const createTask = async (req, res) => {
       createdBy: req.user._id,
     });
 
-    await Activity.create({
-  type: "TASK_CREATED",
-  message: `Task "${task.title}" created`,
-  taskId: task._id,
-  userId: req.user._id,
-  boardId,
-});
+    await logActivity({
+      type: "TASK_CREATED",
+      message: `Task "${task.title}" created`,
+      taskId: task._id,
+      userId: req.user._id,
+      boardId,
+    });
 
 
     // realtime emit
@@ -61,10 +80,77 @@ export const getTasks = async (req, res) => {
 
 export const deleteTask = async (req, res) => {
   try {
+    const task = await Task.findById(req.params.id).select("title boardId assignedTo");
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
     await Task.findByIdAndDelete(req.params.id);
+    getIO().to(task.boardId.toString()).emit("taskDeleted", { _id: task._id });
+    if (task.assignedTo) {
+      getIO().to(`user:${task.assignedTo.toString()}`).emit("myTasksRefresh");
+    }
+
+    await logActivity({
+      type: "TASK_DELETED",
+      message: `Task "${task.title}" deleted`,
+      taskId: task._id,
+      userId: req.user._id,
+      boardId: task.boardId,
+    });
+
     res.json({ message: "Task deleted" });
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+};
+
+export const updateTask = async (req, res) => {
+  try {
+    const { title, description } = req.body;
+    const existingTask = await Task.findById(req.params.id).select(
+      "title boardId assignedTo"
+    );
+
+    if (!existingTask) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    const nextTitle =
+      typeof title === "string" ? title.trim() : existingTask.title;
+    if (!nextTitle) {
+      return res.status(400).json({ message: "Title is required" });
+    }
+
+    const updatePayload = { title: nextTitle };
+    if (typeof description === "string") {
+      updatePayload.description = description;
+    }
+
+    const updatedTask = await Task.findByIdAndUpdate(
+      req.params.id,
+      updatePayload,
+      { returnDocument: "after" }
+    ).populate("assignedTo", "name email");
+
+    getIO().to(existingTask.boardId.toString()).emit("taskUpdated", updatedTask);
+    if (existingTask.assignedTo) {
+      getIO().to(`user:${existingTask.assignedTo.toString()}`).emit("myTasksRefresh");
+    }
+
+    if (existingTask.title !== nextTitle) {
+      await logActivity({
+        type: "TASK_UPDATED",
+        message: `Task renamed from "${existingTask.title}" to "${nextTitle}"`,
+        taskId: existingTask._id,
+        userId: req.user._id,
+        boardId: existingTask.boardId,
+      });
+    }
+
+    res.json(updatedTask);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -85,13 +171,13 @@ export const moveTask = async (req, res) => {
 
     await task.save();
 
-    await Activity.create({
-  type: "TASK_MOVED",
-  message: `Task moved`,
-  taskId: task._id,
-  userId: req.user._id,
-  boardId: task.boardId,
-});
+    await logActivity({
+      type: "TASK_MOVED",
+      message: `Task "${task.title}" moved`,
+      taskId: task._id,
+      userId: req.user._id,
+      boardId: task.boardId,
+    });
 
 
     getIO().to(task.boardId.toString()).emit("taskMoved", task);
@@ -142,6 +228,16 @@ export const assignTask = async (req, res) => {
     if (previousAssignedTo && previousAssignedTo !== userId) {
       getIO().to(`user:${previousAssignedTo}`).emit("myTasksRefresh");
     }
+
+    await logActivity({
+      type: userId ? "TASK_ASSIGNED" : "TASK_UNASSIGNED",
+      message: userId
+        ? `Task "${task.title}" assigned to ${task.assignedTo?.name || "a user"}`
+        : `Task "${task.title}" unassigned`,
+      taskId: task._id,
+      userId: req.user._id,
+      boardId: boardRoomId,
+    });
 
 
     res.json(task);
