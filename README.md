@@ -159,6 +159,7 @@ Create `server/.env`:
 PORT=5000
 MONGO_URI=mongodb://localhost:27017
 JWT_SECRET=replace_with_secure_secret
+CLIENT_URL=http://localhost:5173
 ```
 
 ### 4. Start backend
@@ -183,11 +184,9 @@ npm run dev
 - `MONGO_URI` - MongoDB connection string
 - `JWT_SECRET` - Secret used to sign and verify JWTs
 
-### Client
-- Currently configured with static local URLs in source:
-  - API base URL: `http://localhost:5000/api`
-  - Socket URL: `http://localhost:5000`
-- Optional improvement: move both to Vite env variables (`VITE_API_URL`, `VITE_SOCKET_URL`).
+### Client (`client/.env`)
+- `VITE_API_URL` - API base URL (example: `http://localhost:5000/api`)
+- `VITE_SOCKET_URL` - Socket server URL (example: `http://localhost:5000`)
 
 ## Assumptions and Trade-offs
 - MVP scope prioritizes core collaboration flows over enterprise controls.
@@ -199,8 +198,8 @@ npm run dev
 ## Demo Credentials
 Use placeholder credentials below (replace before submission/demo):
 
-- Email: `test2@gmail.com`
-- Password: `123456`
+- Email: `ash@gmail.com`
+- Password: `newAsh@1`
 
 ## Screenshots
 <!-- Add screenshots in this section before final submission.

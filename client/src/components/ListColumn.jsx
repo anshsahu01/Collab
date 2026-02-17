@@ -8,7 +8,7 @@ import { Input } from "./input";
 import { Button } from "./button";
 import { Avatar, AvatarFallback } from "./avatar";
 
-import { Check, GripVertical, Pencil, Plus, Trash2, X } from "lucide-react";
+import { Check, ChevronDown, GripVertical, Pencil, Trash2, X } from "lucide-react";
 
 export default function ListColumn({ list, boardId }) {
 
@@ -209,7 +209,6 @@ export default function ListColumn({ list, boardId }) {
             className="w-full text-sm font-semibold"
             onClick={createTask}
           >
-            <Plus className="w-4 h-4 mr-1" />
             Add Task
           </Button>
 
@@ -315,7 +314,6 @@ function TaskItem({ task, assignTask, updateTask, deleteTask, users }) {
       </div>
 
       <div className="flex items-center justify-between">
-
         {task.assignedTo ? (
           <Avatar className="h-6 w-6">
             <AvatarFallback className="text-[11px]">
@@ -327,35 +325,34 @@ function TaskItem({ task, assignTask, updateTask, deleteTask, users }) {
             Unassigned
           </span>
         )}
-
-        <select
-          value={task.assignedTo?._id || ""}
-          onChange={(e) =>
-            assignTask(task._id, e.target.value)
-          }
-          onPointerDown={stopDragCapture}
-          className="bg-background/80 border border-border/80 rounded-md text-xs px-2 py-1 focus:outline-none focus:ring-1 focus:ring-primary/60"
-        >
-
-          <option value="">Assign</option>
-
-          {users.map((user) => (
-            <option key={user._id} value={user._id}>
-              {user.name}
-            </option>
-          ))}
-
-        </select>
-
       </div>
 
-      <div className="flex items-center justify-end gap-1">
+      <div className="flex items-center justify-end gap-2">
+        <div className="relative">
+          <select
+            value={task.assignedTo?._id || ""}
+            onChange={(e) =>
+              assignTask(task._id, e.target.value)
+            }
+            onPointerDown={stopDragCapture}
+            className="h-9 min-w-32 appearance-none rounded-lg border border-white/15 bg-black/45 pl-3 pr-9 text-xs font-medium text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] outline-none transition-colors hover:border-white/30 focus:border-primary/60 focus:ring-1 focus:ring-primary/40"
+          >
+            <option value="">Assign</option>
+            {users.map((user) => (
+              <option key={user._id} value={user._id}>
+                {user.name}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-white/80" />
+        </div>
+
         {isEditing ? (
           <>
             <button
               onClick={saveEdit}
               onPointerDown={stopDragCapture}
-              className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-border/70 text-emerald-400 hover:bg-background/40"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border/70 text-white hover:bg-background/40"
               aria-label="Save task"
               title="Save"
               type="button"
@@ -365,7 +362,7 @@ function TaskItem({ task, assignTask, updateTask, deleteTask, users }) {
             <button
               onClick={cancelEdit}
               onPointerDown={stopDragCapture}
-              className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-border/70 text-muted-foreground hover:bg-background/40"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border/70 text-white hover:bg-background/40"
               aria-label="Cancel edit"
               title="Cancel"
               type="button"
@@ -378,7 +375,7 @@ function TaskItem({ task, assignTask, updateTask, deleteTask, users }) {
             <button
               onClick={() => setIsEditing(true)}
               onPointerDown={stopDragCapture}
-              className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-border/70 text-muted-foreground hover:text-foreground hover:bg-background/40"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border/70 text-white hover:bg-background/40"
               aria-label="Edit task"
               title="Edit"
               type="button"
@@ -388,7 +385,7 @@ function TaskItem({ task, assignTask, updateTask, deleteTask, users }) {
             <button
               onClick={confirmDelete}
               onPointerDown={stopDragCapture}
-              className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-border/70 text-red-400 hover:bg-background/40"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border/70 text-white hover:bg-background/40"
               aria-label="Delete task"
               title="Delete"
               type="button"

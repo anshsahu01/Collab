@@ -3,6 +3,7 @@ import Activity from "../models/Activity.js";
 export const getBoardActivities = async (req, res) => {
   try {
     const { boardId } = req.params;
+    // Defensive bounds so clients cannot request huge pages.
     const page = Math.max(parseInt(req.query.page) || 1, 1);
     const limit = Math.min(Math.max(parseInt(req.query.limit) || 20, 1), 100);
 

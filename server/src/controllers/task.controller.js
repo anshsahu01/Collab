@@ -2,6 +2,7 @@ import Task from "../models/Task.js";
 import Activity from "../models/Activity.js";
 import { getIO } from "../socket.js";
 
+// Central helper so every task mutation logs + emits activity in one place.
 const logActivity = async ({ type, message, taskId, userId, boardId }) => {
   if (!boardId) return null;
 
@@ -25,6 +26,7 @@ export const createTask = async (req, res) => {
   try {
     const { title, description, boardId, listId } = req.body;
 
+    // New tasks are appended at the end of the current list.
     const count = await Task.countDocuments({ listId });
 
     const task = await Task.create({
@@ -38,14 +40,14 @@ export const createTask = async (req, res) => {
 
     await logActivity({
       type: "TASK_CREATED",
-      message: `Task "${task.title}" created`,
+      message: `Task ${task.title} created`,
       taskId: task._id,
       userId: req.user._id,
       boardId,
     });
 
 
-    // realtime emit
+    // Realtime board sync for all members currently viewing this board.
     getIO().to(boardId.toString()).emit("taskCreated", task);
 
     res.json(task);
@@ -87,13 +89,14 @@ export const deleteTask = async (req, res) => {
 
     await Task.findByIdAndDelete(req.params.id);
     getIO().to(task.boardId.toString()).emit("taskDeleted", { _id: task._id });
+    // Keep "My Tasks" accurate for assigned users without full board reload.
     if (task.assignedTo) {
       getIO().to(`user:${task.assignedTo.toString()}`).emit("myTasksRefresh");
     }
 
     await logActivity({
       type: "TASK_DELETED",
-      message: `Task "${task.title}" deleted`,
+      message: `Task ${task.title} deleted`,
       taskId: task._id,
       userId: req.user._id,
       boardId: task.boardId,
@@ -141,7 +144,7 @@ export const updateTask = async (req, res) => {
     if (existingTask.title !== nextTitle) {
       await logActivity({
         type: "TASK_UPDATED",
-        message: `Task renamed from "${existingTask.title}" to "${nextTitle}"`,
+        message: `Task renamed from ${existingTask.title} to ${nextTitle}`,
         taskId: existingTask._id,
         userId: req.user._id,
         boardId: existingTask.boardId,
@@ -173,7 +176,7 @@ export const moveTask = async (req, res) => {
 
     await logActivity({
       type: "TASK_MOVED",
-      message: `Task "${task.title}" moved`,
+      message: `Task ${task.title} moved`,
       taskId: task._id,
       userId: req.user._id,
       boardId: task.boardId,
@@ -201,6 +204,7 @@ export const assignTask = async (req, res) => {
     if (!existingTask) {
       return res.status(404).json({ message: "Task not found" });
     }
+    // Track previous assignee so both old and new users get refresh events.
     const previousAssignedTo = existingTask.assignedTo?.toString() || null;
     const boardRoomId = existingTask.boardId?.toString();
 
@@ -216,7 +220,7 @@ export const assignTask = async (req, res) => {
       .populate("listId", "title");
 
 
-    // realtime emit
+    // Board members see assignment changes instantly.
     if (boardRoomId) {
       getIO().to(boardRoomId).emit("taskAssigned", task);
     }
@@ -232,8 +236,8 @@ export const assignTask = async (req, res) => {
     await logActivity({
       type: userId ? "TASK_ASSIGNED" : "TASK_UNASSIGNED",
       message: userId
-        ? `Task "${task.title}" assigned to ${task.assignedTo?.name || "a user"}`
-        : `Task "${task.title}" unassigned`,
+        ? `Task ${task.title} assigned to ${task.assignedTo?.name || "a user"}`
+        : `Task ${task.title} unassigned`,
       taskId: task._id,
       userId: req.user._id,
       boardId: boardRoomId,

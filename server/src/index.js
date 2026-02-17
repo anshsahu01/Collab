@@ -6,6 +6,7 @@ import { createServer } from "http"; // Move imports to top
 import { Server } from "socket.io";
 import { connectDB } from "./config/db.js";
 import { setIO } from "./socket.js";
+import Board from "./models/Board.js";
 
 // ROUTES
 import authRoutes from "./routes/auth.routes.js";
@@ -18,20 +19,27 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+// Supports one or more frontend origins: "http://a.com,http://b.com"
+const allowedOrigins = (process.env.CLIENT_URL || "http://localhost:5173")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+const corsOptions = {
+  origin: allowedOrigins,
+  credentials: true,
+};
 
 // Create the HTTP server first
 const httpServer = createServer(app); 
 
 // Attach Socket.io to that HTTP server
 const io = new Server(httpServer, {
-  cors: {
-    origin: "*", // In production, replace with your frontend URL
-  }
+  cors: corsOptions,
 });
 setIO(io);
 
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Database connection
@@ -49,22 +57,46 @@ app.get("/", (req, res) => {
 });
 
 // Socket.io Logic
+io.use((socket, next) => {
+  // Socket clients authenticate once during handshake using JWT.
+  const token = socket.handshake.auth?.token;
+  if (!token) {
+    return next(new Error("Unauthorized"));
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    socket.userId = decoded.userId;
+    // Every user gets a private room for targeted events like myTasksRefresh.
+    socket.join(`user:${decoded.userId}`);
+    next();
+  } catch {
+    next(new Error("Unauthorized"));
+  }
+});
+
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
-  const token = socket.handshake.auth?.token;
-  if (token) {
+  socket.on("joinBoard", async (boardId) => {
+    if (!boardId) return;
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      socket.join(`user:${decoded.userId}`);
-    } catch {
-      // ignore invalid socket auth token
-    }
-  }
+      // Prevent room-join by non-members (important for board privacy).
+      const isMember = await Board.exists({
+        _id: boardId,
+        members: socket.userId,
+      });
 
-  socket.on("joinBoard", (boardId) => {
-    socket.join(boardId);
-    console.log(`User ${socket.id} joined board ${boardId}`);
+      if (!isMember) {
+        socket.emit("socketError", { message: "Board access denied" });
+        return;
+      }
+
+      socket.join(boardId.toString());
+      console.log(`User ${socket.id} joined board ${boardId}`);
+    } catch {
+      socket.emit("socketError", { message: "Invalid board id" });
+    }
   });
 
   socket.on("leaveBoard", (boardId) => {
@@ -76,7 +108,12 @@ io.on("connection", (socket) => {
   });
 });
 
-// IMPORTANT: Listen on the httpServer, NOT app.listen
-httpServer.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== "test") {
+  // IMPORTANT: Listen on the httpServer, NOT app.listen
+  httpServer.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
+
+export { httpServer };
+export default app;

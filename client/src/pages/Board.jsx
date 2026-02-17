@@ -12,7 +12,7 @@ import { Button } from "../components/button";
 import { Input } from "../components/input";
 import { Card } from "../components/card";
 
-import { ChevronLeft, Plus, ListChecks } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 
 
 function Board() {
@@ -183,16 +183,12 @@ function Board() {
               size="sm"
               onClick={() => navigate("/my-tasks")}
             >
-              <ListChecks className="mr-2 h-4 w-4" />
               My Tasks
             </Button>
 
             <div className="text-right space-y-1">
               <p className="text-xs text-muted-foreground">
                 {lists.length} {lists.length === 1 ? "list" : "lists"}
-              </p>
-              <p className="text-[11px] font-mono text-muted-foreground bg-secondary/60 border border-border/70 rounded px-2 py-1">
-                ID: {boardId}
               </p>
             </div>
           </div>
@@ -206,14 +202,6 @@ function Board() {
           <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-background to-transparent" />
           <DndContext onDragEnd={handleDragEnd}>
             <div className="relative z-20 inline-flex min-w-full gap-6 pb-1">
-              {lists.map((list) => (
-                <ListColumn
-                  key={list._id}
-                  list={list}
-                  boardId={boardId}
-                />
-              ))}
-
               <div className="w-80 flex-shrink-0">
                 <Card className="h-full border-dashed border-border/80 bg-card/70 p-4">
                   <div className="space-y-3">
@@ -238,12 +226,19 @@ function Board() {
                       onClick={createList}
                       className="h-9 w-full text-sm font-semibold"
                     >
-                      <Plus className="mr-2 h-4 w-4" />
                       Add List
                     </Button>
                   </div>
                 </Card>
               </div>
+
+              {lists.map((list) => (
+                <ListColumn
+                  key={list._id}
+                  list={list}
+                  boardId={boardId}
+                />
+              ))}
             </div>
           </DndContext>
         </section>
