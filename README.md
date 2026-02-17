@@ -5,6 +5,25 @@ Collab is a full stack, Trello/Notion-style real-time task collaboration platfor
 
 It is designed with a modular backend and a component-driven frontend to support maintainability, clear API boundaries, and real-time collaboration workflows.
 
+## Screenshots
+Add your screenshots in `docs/screenshots/` using the filenames below.
+
+### Landing
+![Landing Page](docs/screenshots/landingpage.png)
+
+
+
+### Boards Dashboard
+![Boards Dashboard](docs/screenshots/boardspage.png)
+
+### Board Detail
+![Board Detail](docs/screenshots/boardpage.png)
+
+### Task Assignment
+![Task Assignment](docs/screenshots/mytaskspage.png)
+
+
+
 ## Features
 - User authentication with JWT (`signup`, `login`, protected routes)
 - Board creation and board-level workspace organization
@@ -200,26 +219,6 @@ Use placeholder credentials below (replace before submission/demo):
 
 - Email: `ash@gmail.com`
 - Password: `newAsh@1`
-
-## Screenshots
-Add your screenshots in `docs/screenshots/` using the filenames below.
-
-### Landing
-![Landing Page](docs/screenshots/landingpage.png)
-
-
-
-### Boards Dashboard
-![Boards Dashboard](docs/screenshots/boardspage.png)
-
-### Board Detail
-![Board Detail](docs/screenshots/boardpage.png)
-
-### Task Assignment
-![Task Assignment](docs/screenshots/mytaskspage.png)
-
-
-
 
 
 ## Future Improvements
