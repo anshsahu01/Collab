@@ -202,15 +202,25 @@ Use placeholder credentials below (replace before submission/demo):
 - Password: `newAsh@1`
 
 ## Screenshots
-<!-- Add screenshots in this section before final submission.
+Add your screenshots in `docs/screenshots/` using the filenames below.
 
-Suggested captures:
-- Login/Signup
-- Boards dashboard
-- Board detail with lists + drag-and-drop tasks
-- Task assignment modal/dropdown
-- My Tasks page
-- Real-time activity panel -->
+### Landing
+![Landing Page](docs/screenshots/landingpage.png)
+
+
+
+### Boards Dashboard
+![Boards Dashboard](docs/screenshots/boardspage.png)
+
+### Board Detail
+![Board Detail](docs/screenshots/boardpage.png)
+
+### Task Assignment
+![Task Assignment](docs/screenshots/mytaskspage.png)
+
+
+
+
 
 ## Future Improvements
 - Role-based access control (Admin/Member/Viewer) per board
