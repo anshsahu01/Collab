@@ -7,7 +7,7 @@ import { Input } from "../components/input";
 import { Card } from "../components/card";
 import { Avatar, AvatarFallback } from "../components/avatar";
 
-import { Plus, LogOut } from "lucide-react";
+import { Plus, LogOut, ListChecks } from "lucide-react";
 
 export default function Boards() {
   const navigate = useNavigate();
@@ -107,6 +107,15 @@ export default function Boards() {
                   {user.name?.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
+
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => navigate("/my-tasks")}
+              >
+                <ListChecks className="w-4 h-4 mr-2" />
+                My Tasks
+              </Button>
 
               <Button
                 variant="ghost"

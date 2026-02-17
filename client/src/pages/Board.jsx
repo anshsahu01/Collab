@@ -12,7 +12,7 @@ import { Button } from "../components/button";
 import { Input } from "../components/input";
 import { Card } from "../components/card";
 
-import { ChevronLeft, Plus } from "lucide-react";
+import { ChevronLeft, Plus, ListChecks } from "lucide-react";
 
 
 function Board() {
@@ -177,13 +177,24 @@ function Board() {
             </div>
           </div>
 
-          <div className="text-right space-y-1">
-            <p className="text-xs text-muted-foreground">
-              {lists.length} {lists.length === 1 ? "list" : "lists"}
-            </p>
-            <p className="text-[11px] font-mono text-muted-foreground bg-secondary/60 border border-border/70 rounded px-2 py-1">
-              ID: {boardId}
-            </p>
+          <div className="flex items-center gap-4">
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => navigate("/my-tasks")}
+            >
+              <ListChecks className="mr-2 h-4 w-4" />
+              My Tasks
+            </Button>
+
+            <div className="text-right space-y-1">
+              <p className="text-xs text-muted-foreground">
+                {lists.length} {lists.length === 1 ? "list" : "lists"}
+              </p>
+              <p className="text-[11px] font-mono text-muted-foreground bg-secondary/60 border border-border/70 rounded px-2 py-1">
+                ID: {boardId}
+              </p>
+            </div>
           </div>
         </div>
       </header>
